@@ -1,7 +1,0 @@
-{
-  "FamilyHub.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "D:\\Privat\\copilot-worktrees\\family-hub\\jfuerlinger-smartpoint-urban-goggles\\src\\backend\\src\\FamilyHub.Api",
-  "FamilyHub.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "D:\\Privat\\copilot-worktrees\\family-hub\\jfuerlinger-smartpoint-urban-goggles\\src\\backend\\src\\FamilyHub.Application",
-  "FamilyHub.Domain, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "D:\\Privat\\copilot-worktrees\\family-hub\\jfuerlinger-smartpoint-urban-goggles\\src\\backend\\src\\FamilyHub.Domain",
-  "FamilyHub.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "D:\\Privat\\copilot-worktrees\\family-hub\\jfuerlinger-smartpoint-urban-goggles\\src\\backend\\src\\FamilyHub.Infrastructure",
-  "FamilyHub.ServiceDefaults, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "D:\\Privat\\copilot-worktrees\\family-hub\\jfuerlinger-smartpoint-urban-goggles\\src\\backend\\src\\FamilyHub.ServiceDefaults"
-}
