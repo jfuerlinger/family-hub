@@ -1,0 +1,13 @@
+D:\Privat\copilot-worktrees\family-hub\jfuerlinger-smartpoint-urban-goggles\src\backend\src\FamilyHub.ServiceDefaults\bin\Debug\net10.0\FamilyHub.ServiceDefaults.deps.json
+D:\Privat\copilot-worktrees\family-hub\jfuerlinger-smartpoint-urban-goggles\src\backend\src\FamilyHub.ServiceDefaults\bin\Debug\net10.0\FamilyHub.ServiceDefaults.dll
+D:\Privat\copilot-worktrees\family-hub\jfuerlinger-smartpoint-urban-goggles\src\backend\src\FamilyHub.ServiceDefaults\bin\Debug\net10.0\FamilyHub.ServiceDefaults.pdb
+D:\Privat\copilot-worktrees\family-hub\jfuerlinger-smartpoint-urban-goggles\src\backend\src\FamilyHub.ServiceDefaults\obj\Debug\net10.0\FamilyHub.ServiceDefaults.csproj.AssemblyReference.cache
+D:\Privat\copilot-worktrees\family-hub\jfuerlinger-smartpoint-urban-goggles\src\backend\src\FamilyHub.ServiceDefaults\obj\Debug\net10.0\FamilyHub.ServiceDefaults.GeneratedMSBuildEditorConfig.editorconfig
+D:\Privat\copilot-worktrees\family-hub\jfuerlinger-smartpoint-urban-goggles\src\backend\src\FamilyHub.ServiceDefaults\obj\Debug\net10.0\FamilyHub.ServiceDefaults.AssemblyInfoInputs.cache
+D:\Privat\copilot-worktrees\family-hub\jfuerlinger-smartpoint-urban-goggles\src\backend\src\FamilyHub.ServiceDefaults\obj\Debug\net10.0\FamilyHub.ServiceDefaults.AssemblyInfo.cs
+D:\Privat\copilot-worktrees\family-hub\jfuerlinger-smartpoint-urban-goggles\src\backend\src\FamilyHub.ServiceDefaults\obj\Debug\net10.0\FamilyHub.ServiceDefaults.csproj.CoreCompileInputs.cache
+D:\Privat\copilot-worktrees\family-hub\jfuerlinger-smartpoint-urban-goggles\src\backend\src\FamilyHub.ServiceDefaults\obj\Debug\net10.0\FamilyHub.ServiceDefaults.sourcelink.json
+D:\Privat\copilot-worktrees\family-hub\jfuerlinger-smartpoint-urban-goggles\src\backend\src\FamilyHub.ServiceDefaults\obj\Debug\net10.0\FamilyHub.ServiceDefaults.dll
+D:\Privat\copilot-worktrees\family-hub\jfuerlinger-smartpoint-urban-goggles\src\backend\src\FamilyHub.ServiceDefaults\obj\Debug\net10.0\refint\FamilyHub.ServiceDefaults.dll
+D:\Privat\copilot-worktrees\family-hub\jfuerlinger-smartpoint-urban-goggles\src\backend\src\FamilyHub.ServiceDefaults\obj\Debug\net10.0\FamilyHub.ServiceDefaults.pdb
+D:\Privat\copilot-worktrees\family-hub\jfuerlinger-smartpoint-urban-goggles\src\backend\src\FamilyHub.ServiceDefaults\obj\Debug\net10.0\ref\FamilyHub.ServiceDefaults.dll
