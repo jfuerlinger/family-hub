@@ -1,0 +1,16 @@
+D:\Privat\copilot-worktrees\family-hub\jfuerlinger-smartpoint-urban-goggles\src\backend\src\FamilyHub.Application\bin\Release\net10.0\FamilyHub.Application.deps.json
+D:\Privat\copilot-worktrees\family-hub\jfuerlinger-smartpoint-urban-goggles\src\backend\src\FamilyHub.Application\bin\Release\net10.0\FamilyHub.Application.dll
+D:\Privat\copilot-worktrees\family-hub\jfuerlinger-smartpoint-urban-goggles\src\backend\src\FamilyHub.Application\bin\Release\net10.0\FamilyHub.Application.pdb
+D:\Privat\copilot-worktrees\family-hub\jfuerlinger-smartpoint-urban-goggles\src\backend\src\FamilyHub.Application\bin\Release\net10.0\FamilyHub.Domain.dll
+D:\Privat\copilot-worktrees\family-hub\jfuerlinger-smartpoint-urban-goggles\src\backend\src\FamilyHub.Application\bin\Release\net10.0\FamilyHub.Domain.pdb
+D:\Privat\copilot-worktrees\family-hub\jfuerlinger-smartpoint-urban-goggles\src\backend\src\FamilyHub.Application\obj\Release\net10.0\FamilyHub.Application.csproj.AssemblyReference.cache
+D:\Privat\copilot-worktrees\family-hub\jfuerlinger-smartpoint-urban-goggles\src\backend\src\FamilyHub.Application\obj\Release\net10.0\FamilyHub.Application.GeneratedMSBuildEditorConfig.editorconfig
+D:\Privat\copilot-worktrees\family-hub\jfuerlinger-smartpoint-urban-goggles\src\backend\src\FamilyHub.Application\obj\Release\net10.0\FamilyHub.Application.AssemblyInfoInputs.cache
+D:\Privat\copilot-worktrees\family-hub\jfuerlinger-smartpoint-urban-goggles\src\backend\src\FamilyHub.Application\obj\Release\net10.0\FamilyHub.Application.AssemblyInfo.cs
+D:\Privat\copilot-worktrees\family-hub\jfuerlinger-smartpoint-urban-goggles\src\backend\src\FamilyHub.Application\obj\Release\net10.0\FamilyHub.Application.csproj.CoreCompileInputs.cache
+D:\Privat\copilot-worktrees\family-hub\jfuerlinger-smartpoint-urban-goggles\src\backend\src\FamilyHub.Application\obj\Release\net10.0\FamilyHub.Application.sourcelink.json
+D:\Privat\copilot-worktrees\family-hub\jfuerlinger-smartpoint-urban-goggles\src\backend\src\FamilyHub.Application\obj\Release\net10.0\FamilyHu.2EE5F73F.Up2Date
+D:\Privat\copilot-worktrees\family-hub\jfuerlinger-smartpoint-urban-goggles\src\backend\src\FamilyHub.Application\obj\Release\net10.0\FamilyHub.Application.dll
+D:\Privat\copilot-worktrees\family-hub\jfuerlinger-smartpoint-urban-goggles\src\backend\src\FamilyHub.Application\obj\Release\net10.0\refint\FamilyHub.Application.dll
+D:\Privat\copilot-worktrees\family-hub\jfuerlinger-smartpoint-urban-goggles\src\backend\src\FamilyHub.Application\obj\Release\net10.0\FamilyHub.Application.pdb
+D:\Privat\copilot-worktrees\family-hub\jfuerlinger-smartpoint-urban-goggles\src\backend\src\FamilyHub.Application\obj\Release\net10.0\ref\FamilyHub.Application.dll
