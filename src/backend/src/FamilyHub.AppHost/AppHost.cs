@@ -1,6 +1,8 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
-var postgres = builder.AddPostgres("postgres")
+var postgresPassword = builder.AddParameter("postgres-password", "postgres", secret: true);
+
+var postgres = builder.AddPostgres("postgres", password: postgresPassword)
     .WithDataVolume("familyhub-postgres-data")
     .WithLifetime(ContainerLifetime.Persistent)
     .WithPgAdmin(pgAdmin => pgAdmin.WithLifetime(ContainerLifetime.Persistent));
