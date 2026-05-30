@@ -76,9 +76,19 @@ describe('authStore', () => {
 
     expect(store.authError).toBe('Die API ist aktuell nicht erreichbar. Bitte pruefe, ob Backend und Datenbank laufen.')
   })
+  it('shows an API unavailable message for a 502 gateway error', async () => {
+    vi.spyOn(authApi, 'register').mockRejectedValue(
+      createAxiosError('<html>Bad Gateway</html>', undefined, 502),
+    )
+
+    const store = useAuthStore()
+    await store.registerUser({ firstName: 'Max', lastName: 'Muster', email: 'max@example.com', password: 'Secure123!' })
+
+    expect(store.authError).toBe('Die API ist aktuell nicht erreichbar. Bitte pruefe, ob Backend und Datenbank laufen.')
+  })
 })
 
-function createAxiosError(data?: unknown, code?: string): AxiosError {
+function createAxiosError(data?: unknown, code?: string, status = 400): AxiosError {
   return new AxiosError(
     'Request failed',
     code,
@@ -88,8 +98,8 @@ function createAxiosError(data?: unknown, code?: string): AxiosError {
       ? undefined
       : {
           data,
-          status: 400,
-          statusText: 'Bad Request',
+          status,
+          statusText: status === 502 ? 'Bad Gateway' : 'Bad Request',
           headers: {},
           config: { headers: {} as never },
         },

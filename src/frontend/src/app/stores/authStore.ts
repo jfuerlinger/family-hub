@@ -90,7 +90,18 @@ export const useAuthStore = defineStore('auth', () => {
 
 function toErrorMessage(error: unknown, fallback: string): string {
   if (error instanceof AxiosError) {
-    const responseData = error.response?.data
+    const status = error.response?.status
+
+    if (
+      error.code === AxiosError.ERR_NETWORK ||
+      !error.response ||
+      status === 502 ||
+      status === 503
+    ) {
+      return 'Die API ist aktuell nicht erreichbar. Bitte pruefe, ob Backend und Datenbank laufen.'
+    }
+
+    const responseData = error.response.data
 
     if (typeof responseData === 'string' && responseData.trim().length > 0) {
       return responseData.trim()
@@ -104,10 +115,6 @@ function toErrorMessage(error: unknown, fallback: string): string {
 
     const title = responseData?.title
     if (typeof title === 'string' && title.length > 0) return title
-
-    if (error.code === AxiosError.ERR_NETWORK || !error.response) {
-      return 'Die API ist aktuell nicht erreichbar. Bitte pruefe, ob Backend und Datenbank laufen.'
-    }
 
     if (typeof error.message === 'string' && error.message.length > 0) {
       return error.message
