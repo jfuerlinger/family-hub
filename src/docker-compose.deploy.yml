@@ -31,6 +31,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ConnectionStrings__DefaultConnection: "Host=postgres;Database=${POSTGRES_DB:-familyhubdb};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD}"
+      Authentication__Jwt__SigningKey: ${JWT_SIGNING_KEY:?Bitte JWT_SIGNING_KEY in .env.deploy setzen}
     depends_on:
       postgres:
         condition: service_healthy

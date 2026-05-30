@@ -22,6 +22,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ConnectionStrings__DefaultConnection: Host=postgres;Database=familyhubdb;Username=postgres;Password=postgres
+      Authentication__Jwt__SigningKey: familyhub-compose-development-only-jwt-signing-key-not-for-production
     depends_on:
       postgres:
         condition: service_healthy

@@ -101,4 +101,5 @@ When the app first starts, a seed user is created:
 | `Authentication__Jwt__Issuer`         | JWT issuer                                     |
 | `Authentication__Jwt__Audience`       | JWT audience                                   |
 | `Authentication__Jwt__SigningKey`     | JWT signing key (min 32 chars)                 |
+| `JWT_SIGNING_KEY`                      | Compose/deploy variable mapped to backend JWT key |
 | `BACKEND_URL`                         | Backend URL for nginx reverse proxy (frontend) |
