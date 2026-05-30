@@ -90,8 +90,46 @@ export const useAuthStore = defineStore('auth', () => {
 
 function toErrorMessage(error: unknown, fallback: string): string {
   if (error instanceof AxiosError) {
-    const detail = error.response?.data?.detail
+    const responseData = error.response?.data
+
+    if (typeof responseData === 'string' && responseData.trim().length > 0) {
+      return responseData.trim()
+    }
+
+    const detail = responseData?.detail
     if (typeof detail === 'string' && detail.length > 0) return detail
+
+    const validationMessages = getValidationMessages(responseData?.errors)
+    if (validationMessages.length > 0) return validationMessages.join(' ')
+
+    const title = responseData?.title
+    if (typeof title === 'string' && title.length > 0) return title
+
+    if (error.code === AxiosError.ERR_NETWORK || !error.response) {
+      return 'Die API ist aktuell nicht erreichbar. Bitte pruefe, ob Backend und Datenbank laufen.'
+    }
+
+    if (typeof error.message === 'string' && error.message.length > 0) {
+      return error.message
+    }
   }
+
+  if (error instanceof Error && error.message.length > 0) {
+    return error.message
+  }
+
   return fallback
+}
+
+function getValidationMessages(errors: unknown): string[] {
+  if (!errors || typeof errors !== 'object') return []
+
+  return Object.values(errors)
+    .flatMap((value) => {
+      if (Array.isArray(value)) {
+        return value.filter((message): message is string => typeof message === 'string' && message.length > 0)
+      }
+
+      return []
+    })
 }

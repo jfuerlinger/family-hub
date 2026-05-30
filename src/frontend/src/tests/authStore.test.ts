@@ -1,3 +1,4 @@
+import { AxiosError } from 'axios'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { useAuthStore } from '../app/stores/authStore'
@@ -47,6 +48,50 @@ describe('authStore', () => {
     await store.loginUser({ email: 'bad@example.com', password: 'wrong' })
 
     expect(store.isAuthenticated).toBe(false)
-    expect(store.authError).toBeTruthy()
+    expect(store.authError).toBe('network error')
+  })
+
+  it('shows validation messages for failed registration', async () => {
+    vi.spyOn(authApi, 'register').mockRejectedValue(
+      createAxiosError({
+        title: 'One or more validation errors occurred.',
+        errors: {
+          email: ['E-Mail ist erforderlich.'],
+          password: ['Passwort ist erforderlich.'],
+        },
+      }),
+    )
+
+    const store = useAuthStore()
+    await store.registerUser({ firstName: 'Max', lastName: 'Muster', email: '', password: '' })
+
+    expect(store.authError).toBe('E-Mail ist erforderlich. Passwort ist erforderlich.')
+  })
+
+  it('shows an API unavailable message when registration cannot reach the backend', async () => {
+    vi.spyOn(authApi, 'register').mockRejectedValue(createAxiosError(undefined, AxiosError.ERR_NETWORK))
+
+    const store = useAuthStore()
+    await store.registerUser({ firstName: 'Max', lastName: 'Muster', email: 'max@example.com', password: 'Secure123!' })
+
+    expect(store.authError).toBe('Die API ist aktuell nicht erreichbar. Bitte pruefe, ob Backend und Datenbank laufen.')
   })
 })
+
+function createAxiosError(data?: unknown, code?: string): AxiosError {
+  return new AxiosError(
+    'Request failed',
+    code,
+    undefined,
+    undefined,
+    data === undefined
+      ? undefined
+      : {
+          data,
+          status: 400,
+          statusText: 'Bad Request',
+          headers: {},
+          config: { headers: {} as never },
+        },
+  )
+}
