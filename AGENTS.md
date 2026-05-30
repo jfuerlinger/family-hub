@@ -6,13 +6,20 @@
   - `src/FamilyHub.Domain` — entities only, no dependencies
   - `src/FamilyHub.Application` — services, contracts, abstractions
   - `src/FamilyHub.Infrastructure` — EF Core (PostgreSQL), JWT, bcrypt
-  - `src/FamilyHub.Api` — ASP.NET Core API, Dockerized
+  - `src/FamilyHub.Api` — ASP.NET Core API, containerized with Podman
   - `src/FamilyHub.AppHost` — Aspire orchestration
   - `tests/FamilyHub.Application.Tests` — unit tests
   - `tests/FamilyHub.Api.Tests` — integration tests
 - **Frontend:** `src/frontend/` — Vue 3 + Pinia + Vite 8
 
 ## Commands
+
+### Container Runtime
+```bash
+# Use Podman (not Docker) for all container workflows in this repository.
+podman compose -f src/docker-compose.yml up -d
+podman compose -f src/docker-compose.deploy.yml up -d
+```
 
 ### Build & Test (Backend)
 ```bash
