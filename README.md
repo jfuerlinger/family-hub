@@ -75,6 +75,23 @@ cd src
 docker compose -f docker-compose.deploy.yml up -d
 ```
 
+## Docker Compose hinter Traefik (Reverse Proxy)
+
+Wenn du Family Hub hinter Traefik betreibst, route `/api` direkt auf den Backend-Service.
+Sonst landen API-Requests im Frontend-Nginx und können als `502 Bad Gateway (nginx)` enden.
+
+```bash
+cd src
+docker compose -f docker-compose.deploy.yml -f docker-compose.traefik.yml --env-file .env.deploy up -d
+```
+
+Zusätzliche Variablen in `.env.deploy`:
+
+- `TRAEFIK_HOST` (z. B. `familyhub.example.com`)
+- `TRAEFIK_NETWORK` (Name des externen Traefik-Netzwerks, Standard: `traefik`)
+- `TRAEFIK_ENTRYPOINT` (z. B. `websecure`)
+- `TRAEFIK_TLS` (`true` oder `false`)
+
 ### Build & Push Images via GitHub Actions
 
 The repository includes a GitHub Action at `.github/workflows/docker-publish.yml`.
@@ -109,3 +126,7 @@ When the app first starts, a seed user is created:
 | `Authentication__Jwt__SigningKey`     | JWT signing key (min 32 chars)                 |
 | `JWT_SIGNING_KEY`                      | Compose/deploy variable mapped to backend JWT key |
 | `BACKEND_URL`                         | Backend URL for nginx reverse proxy (frontend) |
+| `TRAEFIK_HOST`                        | Hostname for Traefik routers (with traefik compose override) |
+| `TRAEFIK_NETWORK`                     | External Traefik Docker network name |
+| `TRAEFIK_ENTRYPOINT`                  | Traefik entrypoint (for example `web` or `websecure`) |
+| `TRAEFIK_TLS`                         | Enables/disables TLS on Traefik routers |
