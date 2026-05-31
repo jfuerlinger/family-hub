@@ -7,7 +7,8 @@ import type { Family } from '../app/types/family'
 const mockFamily: Family = {
   id: 'fam-1',
   name: 'Muster Familie',
-  createdAt: '2024-01-01T00:00:00Z',
+  createdByUserId: 'user-1',
+  createdAtUtc: '2024-01-01T00:00:00Z',
   members: [
     {
       id: 'mem-1',
