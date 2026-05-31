@@ -1,0 +1,5 @@
+{
+  "appHost": {
+    "path": "src/backend/src/FamilyHub.AppHost/FamilyHub.AppHost.csproj"
+  }
+}
