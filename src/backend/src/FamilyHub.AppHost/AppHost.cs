@@ -11,6 +11,7 @@ var postgres = builder.AddPostgres("postgres", password: postgresPassword)
 var familyhubDb = postgres.AddDatabase("familyhubdb");
 
 var api = builder.AddProject<Projects.FamilyHub_Api>("api")
+    .WithHttpEndpoint(name: "http")
     .WithReference(familyhubDb)
     .WithEnvironment("Authentication__Jwt__SigningKey", developmentJwtSigningKey)
     .WaitFor(familyhubDb);
