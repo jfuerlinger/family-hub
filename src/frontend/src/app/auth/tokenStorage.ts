@@ -62,10 +62,17 @@ export function getStoredAuthenticatedUser(): StoredAuthenticatedUser | null {
       typeof parsed?.id === 'string' &&
       typeof parsed?.firstName === 'string' &&
       typeof parsed?.lastName === 'string' &&
-      typeof parsed?.email === 'string' &&
-      typeof parsed?.requiresPasswordChange === 'boolean'
+      typeof parsed?.email === 'string'
     ) {
-      return parsed as StoredAuthenticatedUser
+      return {
+        id: parsed.id,
+        firstName: parsed.firstName,
+        lastName: parsed.lastName,
+        email: parsed.email,
+        requiresPasswordChange: typeof parsed?.requiresPasswordChange === 'boolean'
+          ? parsed.requiresPasswordChange
+          : false,
+      }
     }
   } catch {
     return null

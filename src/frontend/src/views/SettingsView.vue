@@ -38,9 +38,18 @@ const currentUserId = computed(() => authStore.user?.id ?? null)
 const currentMembership = computed(() => selectedFamily.value?.members.find(member => member.userId === currentUserId.value) ?? null)
 const isCurrentUserAdmin = computed(() => currentMembership.value?.isAdmin === true)
 
-onMounted(async () => {
+async function loadFamiliesForCurrentUser(): Promise<void> {
   await familyStore.loadFamilies()
   familyName.value = selectedFamily.value?.name ?? ''
+}
+
+onMounted(async () => {
+  if (authStore.requiresPasswordChange) {
+    familyName.value = selectedFamily.value?.name ?? ''
+    return
+  }
+
+  await loadFamiliesForCurrentUser()
 })
 
 watch(selectedFamily, (family) => {
@@ -122,6 +131,8 @@ async function changePassword(): Promise<void> {
   passwordForm.currentPassword = ''
   passwordForm.newPassword = ''
   passwordForm.confirmPassword = ''
+
+  await loadFamiliesForCurrentUser()
 }
 </script>
 

@@ -96,6 +96,23 @@ describe('authStore', () => {
     expect(store.requiresPasswordChange).toBe(false)
     expect(window.sessionStorage.getItem('familyhub:auth:accessToken')).toBe('final-token')
   })
+
+  it('keeps legacy stored users logged in and defaults password-change requirement to false', () => {
+    window.sessionStorage.setItem('familyhub:auth:accessToken', 'legacy-token')
+    window.sessionStorage.setItem('familyhub:auth:accessTokenExpiry', '2099-05-28T12:00:00Z')
+    window.localStorage.setItem('familyhub:auth:user', JSON.stringify({
+      id: 'legacy-user',
+      firstName: 'Legacy',
+      lastName: 'User',
+      email: 'legacy@example.com',
+    }))
+
+    const store = useAuthStore()
+
+    expect(store.isAuthenticated).toBe(true)
+    expect(store.user?.email).toBe('legacy@example.com')
+    expect(store.requiresPasswordChange).toBe(false)
+  })
 })
 
 function createAxiosError(data?: unknown, code?: string): AxiosError {

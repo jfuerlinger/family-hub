@@ -113,6 +113,33 @@ public sealed class FamilyServiceTests
         result.IsAdmin.Should().BeTrue();
     }
 
+    [Fact]
+    public async Task UpdateMemberAsync_ShouldThrow_WhenRemovingLastAdmin()
+    {
+        var creator = User.Create("Anna", "Muster", "anna@example.com", "hash", "salt", 100_000);
+        var family = Family.Create("Muster Familie", creator.Id);
+        var adminMembership = FamilyMember.Create(family.Id, creator.Id, isAdmin: true);
+
+        var userRepository = new InMemoryUserRepository([creator]);
+        var familyRepository = new InMemoryFamilyRepository([family]);
+        var memberRepository = new InMemoryFamilyMemberRepository([adminMembership]);
+        var service = new FamilyService(
+            familyRepository,
+            memberRepository,
+            userRepository,
+            new FakeCurrentUserProvider(creator.Id),
+            new FakePasswordHasher(),
+            new FakeCredentialEmailSender());
+
+        var action = async () => await service.UpdateMemberAsync(
+            family.Id,
+            adminMembership.Id,
+            new UpdateFamilyMemberRequest("Anna", "Muster", "anna@example.com", null, false));
+
+        await action.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*at least one admin*");
+    }
+
     private sealed class FakePasswordHasher : IPasswordHasher
     {
         public PasswordHashResult Hash(string password) => new($"hash-{password}", "salt-value", 100_000);

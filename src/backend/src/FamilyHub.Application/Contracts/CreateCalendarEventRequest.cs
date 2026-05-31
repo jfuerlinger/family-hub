@@ -5,4 +5,8 @@ public sealed record CreateCalendarEventRequest(
     string? Description,
     DateTimeOffset StartUtc,
     DateTimeOffset EndUtc,
-    bool AllDay = false);
+    bool AllDay = false,
+    CalendarRecurrenceFrequency Recurrence = CalendarRecurrenceFrequency.None,
+    int RecurrenceInterval = 1,
+    DateTimeOffset? RecurrenceUntilUtc = null,
+    int? RecurrenceCount = null);

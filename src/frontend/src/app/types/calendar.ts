@@ -9,12 +9,18 @@ export interface CalendarEvent {
   createdAtUtc: string
 }
 
+export type CalendarRecurrence = 'none' | 'daily' | 'weekly' | 'monthly'
+
 export interface CreateCalendarEventRequest {
   title: string
   description?: string | null
   startUtc: string
   endUtc: string
   allDay?: boolean
+  recurrence?: CalendarRecurrence
+  recurrenceInterval?: number
+  recurrenceUntilUtc?: string | null
+  recurrenceCount?: number | null
 }
 
 export interface FamilyCalendarEvent extends CalendarEvent {

@@ -149,6 +149,15 @@ public sealed class FamilyService(
 
         user.UpdateProfile(request.FirstName, request.LastName, normalizedEmail);
         member.UpdatePhoneNumber(request.PhoneNumber);
+
+        if (member.IsAdmin && !request.IsAdmin)
+        {
+            var familyMembers = await familyMemberRepository.GetByFamilyIdAsync(familyId, cancellationToken);
+            var adminCount = familyMembers.Count(existingMember => existingMember.IsAdmin);
+            if (adminCount <= 1)
+                throw new InvalidOperationException("A family must always have at least one admin.");
+        }
+
         member.SetAdmin(request.IsAdmin);
 
         await familyMemberRepository.SaveChangesAsync(cancellationToken);
@@ -167,11 +176,16 @@ public sealed class FamilyService(
 
     private async Task<FamilyDto> BuildFamilyDtoAsync(Family family, CancellationToken cancellationToken)
     {
-        var members = await familyMemberRepository.GetByFamilyIdAsync(family.Id, cancellationToken);
+        var members = await familyMemberRepository.GetByFamilyIdWithUsersAsync(family.Id, cancellationToken);
         var memberDtos = new List<FamilyMemberDto>();
         foreach (var member in members)
         {
-            var user = await userRepository.GetByIdAsync(member.UserId, cancellationToken);
+            User? user = member.User;
+            if (user is null)
+            {
+                user = await userRepository.GetByIdAsync(member.UserId, cancellationToken);
+            }
+
             if (user is not null)
             {
                 memberDtos.Add(ToMemberDto(member, user));

@@ -86,7 +86,7 @@ public sealed class AuthServiceTests
             firstName: "Anna",
             lastName: "Muster",
             email: "anna@example.com",
-            passwordHash: "hash-OldPassword123!",
+            passwordHash: "hash-CredOld123!",
             passwordSalt: "salt-value",
             passwordIterations: 100_000,
             requiresPasswordChange: true));
@@ -95,11 +95,11 @@ public sealed class AuthServiceTests
         var currentUserProvider = new FakeCurrentUserProvider(user.Id);
         var service = new AuthService(repository, hasher, new FakeTokenService(), currentUserProvider);
 
-        var result = await service.ChangePasswordAsync(new ChangePasswordRequest("OldPassword123!", "NewPassword123!"));
+        var result = await service.ChangePasswordAsync(new ChangePasswordRequest("CredOld123!", "CredNew123!"));
 
         result.User.RequiresPasswordChange.Should().BeFalse();
         user.RequiresPasswordChange.Should().BeFalse();
-        user.PasswordHash.Should().Be("hash-NewPassword123!");
+        user.PasswordHash.Should().Be("hash-CredNew123!");
     }
 
     [Fact]
@@ -110,7 +110,7 @@ public sealed class AuthServiceTests
             firstName: "Anna",
             lastName: "Muster",
             email: "anna@example.com",
-            passwordHash: "hash-OldPassword123!",
+            passwordHash: "hash-CredOld123!",
             passwordSalt: "salt-value",
             passwordIterations: 100_000,
             requiresPasswordChange: true));
@@ -122,7 +122,7 @@ public sealed class AuthServiceTests
             new FakeTokenService(),
             new FakeCurrentUserProvider(user.Id));
 
-        var action = async () => await service.ChangePasswordAsync(new ChangePasswordRequest("WrongPassword123!", "NewPassword123!"));
+        var action = async () => await service.ChangePasswordAsync(new ChangePasswordRequest("CredWrong123!", "CredNew123!"));
 
         await action.Should().ThrowAsync<UnauthorizedAccessException>();
     }

@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/vue'
+import { fireEvent, render, screen, waitFor } from '@testing-library/vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import SettingsView from '../views/SettingsView.vue'
 
@@ -79,7 +79,11 @@ describe('SettingsView', () => {
     mockAuthStore.loading = false
     mockAuthStore.authError = null
     mockAuthStore.user = { id: 'user-1', firstName: 'Anna', lastName: 'Muster', email: 'anna@example.com', requiresPasswordChange: false }
+    mockAuthStore.changeUserPassword.mockReset()
+    mockAuthStore.changeUserPassword.mockResolvedValue(undefined)
     mockFamilyStore.error = null
+    mockFamilyStore.loadFamilies.mockReset()
+    mockFamilyStore.loadFamilies.mockResolvedValue(undefined)
     mockFamilyStore.selectedFamily.members[0].isAdmin = false
   })
 
@@ -96,5 +100,27 @@ describe('SettingsView', () => {
     render(SettingsView)
 
     expect(await screen.findByText('Passwort aendern erforderlich')).toBeInTheDocument()
+    expect(mockFamilyStore.loadFamilies).not.toHaveBeenCalled()
+  })
+
+  it('loads families after password change succeeds', async () => {
+    mockAuthStore.requiresPasswordChange = true
+    mockAuthStore.user.requiresPasswordChange = true
+    mockAuthStore.changeUserPassword.mockImplementation(async () => {
+      mockAuthStore.requiresPasswordChange = false
+      mockAuthStore.user.requiresPasswordChange = false
+      mockAuthStore.authError = null
+    })
+
+    render(SettingsView)
+
+    await fireEvent.update(screen.getByPlaceholderText('Aktuelles Passwort'), 'Temp1234!')
+    await fireEvent.update(screen.getByPlaceholderText('Neues Passwort'), 'Secure1234!')
+    await fireEvent.update(screen.getByPlaceholderText('Neues Passwort bestaetigen'), 'Secure1234!')
+    await fireEvent.click(screen.getByRole('button', { name: 'Passwort speichern' }))
+
+    await waitFor(() => {
+      expect(mockFamilyStore.loadFamilies).toHaveBeenCalledTimes(1)
+    })
   })
 })

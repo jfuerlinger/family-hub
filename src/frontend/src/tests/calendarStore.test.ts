@@ -59,4 +59,23 @@ describe('calendarStore', () => {
     store.toggleMemberVisibility('user-1')
     expect(store.visibleFamilyEvents()).toHaveLength(0)
   })
+
+  it('reloads my events after creating an event', async () => {
+    const createdEvent = { ...mockEvent, id: 'ev-2' }
+    vi.spyOn(calendarApi, 'createEvent').mockResolvedValue(createdEvent)
+    vi.spyOn(calendarApi, 'getMyEvents').mockResolvedValue([mockEvent, createdEvent])
+
+    const store = useCalendarStore()
+    await store.addEvent({
+      title: 'Neue Serie',
+      startUtc: '2024-06-01T10:00:00Z',
+      endUtc: '2024-06-01T11:00:00Z',
+      recurrence: 'weekly',
+      recurrenceInterval: 1,
+      recurrenceCount: 2,
+    })
+
+    expect(store.myEvents).toHaveLength(2)
+    expect(store.myEvents[1].id).toBe('ev-2')
+  })
 })
