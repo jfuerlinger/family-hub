@@ -2,7 +2,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useCalendarStore } from '../app/stores/calendarStore'
 import { useFamilyStore } from '../app/stores/familyStore'
-import type { FamilyCalendarEvent } from '../app/types/calendar'
+import type { CalendarRecurrence, FamilyCalendarEvent } from '../app/types/calendar'
 import type { CalendarDayCell } from '../app/utils/calendarView'
 import {
   addDays,
@@ -32,6 +32,10 @@ const newDescription = ref('')
 const newStart = ref('')
 const newEnd = ref('')
 const newAllDay = ref(false)
+const newRecurrence = ref<CalendarRecurrence>('none')
+const newRecurrenceInterval = ref(1)
+const newRecurrenceUntil = ref('')
+const newRecurrenceCount = ref('')
 
 watch(
   () => familyStore.selectedFamilyId,
@@ -76,6 +80,7 @@ const uniqueMembers = computed(() => {
 const visibleEvents = computed<FamilyCalendarEvent[]>(() =>
   [...calendarStore.visibleFamilyEvents()].sort((a, b) => new Date(a.startUtc).getTime() - new Date(b.startUtc).getTime()),
 )
+const isRecurring = computed(() => newRecurrence.value !== 'none')
 
 const weekDays = computed<CalendarDayWithEvents[]>(() =>
   createWeekDays(focusDate.value).map(day => ({
@@ -114,12 +119,28 @@ async function addEvent() {
     return
   }
 
+  const parsedRecurrenceCount = newRecurrenceCount.value.trim()
+    ? Number.parseInt(newRecurrenceCount.value.trim(), 10)
+    : null
+
+  const recurrenceCount = parsedRecurrenceCount && parsedRecurrenceCount > 0
+    ? parsedRecurrenceCount
+    : null
+
+  if (isRecurring.value && !newRecurrenceUntil.value && recurrenceCount === null) {
+    return
+  }
+
   await calendarStore.addEvent({
     title: newTitle.value.trim(),
     description: newDescription.value || null,
     startUtc: new Date(newStart.value).toISOString(),
     endUtc: new Date(newEnd.value).toISOString(),
     allDay: newAllDay.value,
+    recurrence: newRecurrence.value,
+    recurrenceInterval: isRecurring.value ? Math.max(1, Math.trunc(newRecurrenceInterval.value || 1)) : 1,
+    recurrenceUntilUtc: isRecurring.value && newRecurrenceUntil.value ? new Date(newRecurrenceUntil.value).toISOString() : null,
+    recurrenceCount,
   })
 
   if (!calendarStore.error) {
@@ -128,6 +149,10 @@ async function addEvent() {
     newStart.value = ''
     newEnd.value = ''
     newAllDay.value = false
+    newRecurrence.value = 'none'
+    newRecurrenceInterval.value = 1
+    newRecurrenceUntil.value = ''
+    newRecurrenceCount.value = ''
   }
 }
 
@@ -222,10 +247,24 @@ function goToToday(): void {
               <input v-model="newAllDay" type="checkbox" />
               Ganztägig
             </label>
+            <select v-model="newRecurrence">
+              <option value="none">Keine Serie</option>
+              <option value="daily">Täglich</option>
+              <option value="weekly">Wöchentlich</option>
+              <option value="monthly">Monatlich</option>
+            </select>
+            <template v-if="isRecurring">
+              <input v-model.number="newRecurrenceInterval" type="number" min="1" step="1" placeholder="Intervall" />
+              <input v-model="newRecurrenceUntil" type="datetime-local" placeholder="Serie bis" />
+              <input v-model="newRecurrenceCount" type="number" min="1" step="1" placeholder="Anzahl (optional)" />
+            </template>
           </div>
           <button type="submit" class="btn-primary" :disabled="calendarStore.loading">Ereignis erstellen</button>
         </form>
         <p v-if="calendarStore.error" class="error" style="margin-top: 0.5rem">{{ calendarStore.error }}</p>
+        <p v-if="isRecurring" class="muted" style="margin-top: 0.5rem">
+          Für Serientermine muss mindestens „Serie bis“ oder eine „Anzahl“ gesetzt sein.
+        </p>
       </div>
 
       <div class="card">
