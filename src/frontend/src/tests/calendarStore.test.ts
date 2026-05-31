@@ -12,7 +12,7 @@ const mockEvent: CalendarEvent = {
   startUtc: '2024-06-01T10:00:00Z',
   endUtc: '2024-06-01T11:00:00Z',
   allDay: false,
-  createdAt: '2024-01-01T00:00:00Z',
+  createdAtUtc: '2024-01-01T00:00:00Z',
 }
 
 const mockFamilyEvent: FamilyCalendarEvent = {

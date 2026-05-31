@@ -5,6 +5,8 @@ export interface FamilyMember {
   firstName: string
   lastName: string
   email: string
+  phoneNumber: string | null
+  isAdmin: boolean
   color: string
   joinedAtUtc: string
 }
@@ -22,5 +24,22 @@ export interface CreateFamilyRequest {
 }
 
 export interface AddFamilyMemberRequest {
+  firstName: string
+  lastName: string
   email: string
+  phoneNumber?: string | null
+  isAdmin?: boolean
+  color?: string | null
+}
+
+export interface UpdateFamilyMemberRequest {
+  firstName: string
+  lastName: string
+  email: string
+  phoneNumber?: string | null
+  isAdmin: boolean
+}
+
+export interface UpdateFamilyRequest {
+  name: string
 }

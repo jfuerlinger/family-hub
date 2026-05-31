@@ -16,11 +16,11 @@ const newAllDay = ref(false)
 onMounted(async () => {
   await familyStore.loadFamilies()
   await calendarStore.loadMyEvents()
-  const fam = familyStore.selectedFamily()
+  const fam = familyStore.selectedFamily
   if (fam) await calendarStore.loadFamilyEvents(fam.id)
 })
 
-const family = computed(() => familyStore.selectedFamily())
+const family = computed(() => familyStore.selectedFamily)
 
 const uniqueMembers = computed(() => {
   const map = new Map<string, { userId: string; name: string; color: string }>()
@@ -113,7 +113,7 @@ function formatDt(iso: string) {
     <!-- Familienkalender -->
     <template v-else>
       <div v-if="!family" class="card">
-        <p class="muted">Keine Familie ausgewählt. Gehe zu <RouterLink to="/family">Familie</RouterLink>.</p>
+        <p class="muted">Keine Familie ausgewählt. Gehe zu <RouterLink to="/settings">Einstellungen</RouterLink>.</p>
       </div>
 
       <template v-else>

@@ -12,7 +12,7 @@ public sealed class AuthServiceTests
     public async Task RegisterAsync_ShouldCreateUserAndReturnToken()
     {
         var repository = new InMemoryUserRepository();
-        var service = new AuthService(repository, new FakePasswordHasher(), new FakeTokenService());
+        var service = new AuthService(repository, new FakePasswordHasher(), new FakeTokenService(), new FakeCurrentUserProvider(Guid.NewGuid()));
         var credential = $"Auth-{Guid.NewGuid():N}!";
 
         var result = await service.RegisterAsync(new RegisterUserRequest(
@@ -23,6 +23,7 @@ public sealed class AuthServiceTests
 
         result.AccessToken.Should().Be("token-value");
         result.User.Email.Should().Be("anna@example.com");
+        result.User.RequiresPasswordChange.Should().BeFalse();
         repository.Items.Should().ContainSingle();
     }
 
@@ -30,7 +31,7 @@ public sealed class AuthServiceTests
     public async Task RegisterAsync_ShouldThrow_WhenEmailAlreadyExists()
     {
         var repository = new InMemoryUserRepository();
-        var service = new AuthService(repository, new FakePasswordHasher(), new FakeTokenService());
+        var service = new AuthService(repository, new FakePasswordHasher(), new FakeTokenService(), new FakeCurrentUserProvider(Guid.NewGuid()));
         var credential = $"Auth-{Guid.NewGuid():N}!";
 
         await service.RegisterAsync(new RegisterUserRequest("Anna", "Muster", "anna@example.com", credential));
@@ -53,7 +54,7 @@ public sealed class AuthServiceTests
             passwordSalt: "salt-value",
             passwordIterations: 100_000));
 
-        var service = new AuthService(repository, new FakePasswordHasher(), new FakeTokenService());
+        var service = new AuthService(repository, new FakePasswordHasher(), new FakeTokenService(), new FakeCurrentUserProvider(Guid.NewGuid()));
 
         var action = async () => await service.LoginAsync(new LoginUserRequest(
             Email: "anna@example.com",
@@ -67,13 +68,63 @@ public sealed class AuthServiceTests
     {
         var repository = new InMemoryUserRepository();
         const string password = "Secure123!";
-        var service = new AuthService(repository, new FakePasswordHasher(), new FakeTokenService());
+        var service = new AuthService(repository, new FakePasswordHasher(), new FakeTokenService(), new FakeCurrentUserProvider(Guid.NewGuid()));
 
         await service.RegisterAsync(new RegisterUserRequest("Anna", "Muster", "anna@example.com", password));
         var result = await service.LoginAsync(new LoginUserRequest("anna@example.com", password));
 
         result.AccessToken.Should().Be("token-value");
         result.User.Email.Should().Be("anna@example.com");
+    }
+
+    [Fact]
+    public async Task ChangePasswordAsync_ShouldUpdatePasswordAndClearRequiredFlag()
+    {
+        var repository = new InMemoryUserRepository();
+        var hasher = new FakePasswordHasher();
+        repository.Items.Add(User.Create(
+            firstName: "Anna",
+            lastName: "Muster",
+            email: "anna@example.com",
+            passwordHash: "hash-OldPassword123!",
+            passwordSalt: "salt-value",
+            passwordIterations: 100_000,
+            requiresPasswordChange: true));
+
+        var user = repository.Items[0];
+        var currentUserProvider = new FakeCurrentUserProvider(user.Id);
+        var service = new AuthService(repository, hasher, new FakeTokenService(), currentUserProvider);
+
+        var result = await service.ChangePasswordAsync(new ChangePasswordRequest("OldPassword123!", "NewPassword123!"));
+
+        result.User.RequiresPasswordChange.Should().BeFalse();
+        user.RequiresPasswordChange.Should().BeFalse();
+        user.PasswordHash.Should().Be("hash-NewPassword123!");
+    }
+
+    [Fact]
+    public async Task ChangePasswordAsync_ShouldThrowUnauthorized_WhenCurrentPasswordIsInvalid()
+    {
+        var repository = new InMemoryUserRepository();
+        repository.Items.Add(User.Create(
+            firstName: "Anna",
+            lastName: "Muster",
+            email: "anna@example.com",
+            passwordHash: "hash-OldPassword123!",
+            passwordSalt: "salt-value",
+            passwordIterations: 100_000,
+            requiresPasswordChange: true));
+
+        var user = repository.Items[0];
+        var service = new AuthService(
+            repository,
+            new FakePasswordHasher(),
+            new FakeTokenService(),
+            new FakeCurrentUserProvider(user.Id));
+
+        var action = async () => await service.ChangePasswordAsync(new ChangePasswordRequest("WrongPassword123!", "NewPassword123!"));
+
+        await action.Should().ThrowAsync<UnauthorizedAccessException>();
     }
 
     private sealed class FakePasswordHasher : IPasswordHasher
@@ -105,5 +156,10 @@ public sealed class AuthServiceTests
         }
 
         public Task SaveChangesAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
+    }
+
+    private sealed class FakeCurrentUserProvider(Guid userId) : ICurrentUserProvider
+    {
+        public Guid GetRequiredUserId() => userId;
     }
 }

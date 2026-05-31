@@ -4,6 +4,7 @@ namespace FamilyHub.Application.Abstractions;
 
 public interface IFamilyMemberRepository
 {
+    Task<FamilyMember?> GetByIdAsync(Guid memberId, CancellationToken cancellationToken = default);
     Task<FamilyMember?> GetByFamilyAndUserAsync(Guid familyId, Guid userId, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<FamilyMember>> GetByFamilyIdAsync(Guid familyId, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<FamilyMember>> GetByFamilyIdWithUsersAsync(Guid familyId, CancellationToken cancellationToken = default);

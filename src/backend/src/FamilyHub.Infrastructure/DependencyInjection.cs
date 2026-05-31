@@ -5,6 +5,7 @@ using FamilyHub.Application.Abstractions;
 using FamilyHub.Application.Services;
 using FamilyHub.Infrastructure.Persistence;
 using FamilyHub.Infrastructure.Persistence.Repositories;
+using FamilyHub.Infrastructure.Notifications;
 using FamilyHub.Infrastructure.Security;
 using FamilyHub.Infrastructure.Seeding;
 
@@ -28,6 +29,7 @@ public static class DependencyInjection
         services.AddScoped<ICalendarEventRepository, EfCalendarEventRepository>();
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddSingleton<ITokenService, JwtTokenService>();
+        services.AddScoped<ICredentialEmailSender, LoggingCredentialEmailSender>();
 
         return services;
     }

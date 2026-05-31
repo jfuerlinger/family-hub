@@ -86,6 +86,7 @@ await app.Services.EnsureDatabaseInitializedAsync(seed: true);
 
 app.MapDefaultEndpoints();
 app.UseAuthentication();
+app.UseMiddleware<PasswordChangeRequiredMiddleware>();
 app.UseAuthorization();
 app.MapControllers();
 

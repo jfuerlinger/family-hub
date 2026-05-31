@@ -11,9 +11,9 @@ const mockTodo: TodoItem = {
   description: null,
   isDone: false,
   assignedToUserId: null,
-  dueDate: null,
-  createdAt: '2024-01-01T00:00:00Z',
-  doneAt: null,
+  dueDateUtc: null,
+  createdAtUtc: '2024-01-01T00:00:00Z',
+  completedAtUtc: null,
 }
 
 describe('todoStore', () => {
@@ -44,7 +44,7 @@ describe('todoStore', () => {
   })
 
   it('toggles done state', async () => {
-    const doneTodo = { ...mockTodo, isDone: true, doneAt: '2024-01-02T00:00:00Z' }
+    const doneTodo = { ...mockTodo, isDone: true, completedAtUtc: '2024-01-02T00:00:00Z' }
     vi.spyOn(todosApi, 'markTodoDone').mockResolvedValue(doneTodo)
 
     const store = useTodoStore()

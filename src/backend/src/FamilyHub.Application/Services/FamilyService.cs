@@ -8,7 +8,9 @@ public sealed class FamilyService(
     IFamilyRepository familyRepository,
     IFamilyMemberRepository familyMemberRepository,
     IUserRepository userRepository,
-    ICurrentUserProvider currentUserProvider) : IFamilyService
+    ICurrentUserProvider currentUserProvider,
+    IPasswordHasher passwordHasher,
+    ICredentialEmailSender credentialEmailSender) : IFamilyService
 {
     public async Task<FamilyDto> CreateFamilyAsync(CreateFamilyRequest request, CancellationToken cancellationToken = default)
     {
@@ -23,7 +25,7 @@ public sealed class FamilyService(
         var creator = await userRepository.GetByIdAsync(userId, cancellationToken)
             ?? throw new InvalidOperationException("Current user not found.");
 
-        var member = FamilyMember.Create(family.Id, userId);
+        var member = FamilyMember.Create(family.Id, userId, isAdmin: true);
         await familyMemberRepository.AddAsync(member, cancellationToken);
         await familyMemberRepository.SaveChangesAsync(cancellationToken);
 
@@ -35,6 +37,22 @@ public sealed class FamilyService(
             [ToMemberDto(member, creator)]);
     }
 
+    public async Task<FamilyDto> UpdateFamilyAsync(Guid familyId, UpdateFamilyRequest request, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(request.Name))
+            throw new ArgumentException("Family name is required.", nameof(request.Name));
+
+        var family = await familyRepository.GetByIdAsync(familyId, cancellationToken)
+            ?? throw new KeyNotFoundException($"Family {familyId} not found.");
+
+        await EnsureCurrentUserIsAdminAsync(familyId, cancellationToken);
+
+        family.Rename(request.Name);
+        await familyRepository.SaveChangesAsync(cancellationToken);
+
+        return await BuildFamilyDtoAsync(family, cancellationToken);
+    }
+
     public async Task<IReadOnlyList<FamilyDto>> GetMyFamiliesAsync(CancellationToken cancellationToken = default)
     {
         var userId = currentUserProvider.GetRequiredUserId();
@@ -42,16 +60,9 @@ public sealed class FamilyService(
         var result = new List<FamilyDto>();
         foreach (var family in families)
         {
-            var members = await familyMemberRepository.GetByFamilyIdAsync(family.Id, cancellationToken);
-            var memberDtos = new List<FamilyMemberDto>();
-            foreach (var m in members)
-            {
-                var user = await userRepository.GetByIdAsync(m.UserId, cancellationToken);
-                if (user is not null)
-                    memberDtos.Add(ToMemberDto(m, user));
-            }
-            result.Add(new FamilyDto(family.Id, family.Name, family.CreatedByUserId, family.CreatedAtUtc, memberDtos));
+            result.Add(await BuildFamilyDtoAsync(family, cancellationToken));
         }
+
         return result;
     }
 
@@ -67,47 +78,128 @@ public sealed class FamilyService(
         if (membership is null)
             return null;
 
-        var members = await familyMemberRepository.GetByFamilyIdAsync(familyId, cancellationToken);
-        var memberDtos = new List<FamilyMemberDto>();
-        foreach (var m in members)
+        return await BuildFamilyDtoAsync(family, cancellationToken);
+    }
+
+    public async Task<FamilyMemberDto> AddMemberAsync(Guid familyId, AddFamilyMemberRequest request, CancellationToken cancellationToken = default)
+    {
+        var family = await familyRepository.GetByIdAsync(familyId, cancellationToken)
+            ?? throw new KeyNotFoundException($"Family {familyId} not found.");
+
+        await EnsureCurrentUserIsAdminAsync(familyId, cancellationToken);
+        ValidateNames(request.FirstName, request.LastName);
+        var normalizedEmail = User.NormalizeEmail(request.Email);
+
+        var existingUser = await userRepository.GetByEmailAsync(normalizedEmail, cancellationToken);
+        if (existingUser is not null)
+            throw new ArgumentException("A user with this email already exists.", nameof(request.Email));
+
+        var temporaryPassword = RandomPasswordGenerator.Generate();
+        var hashedPassword = passwordHasher.Hash(temporaryPassword);
+        var userToAdd = User.Create(
+            request.FirstName,
+            request.LastName,
+            normalizedEmail,
+            hashedPassword.HashBase64,
+            hashedPassword.SaltBase64,
+            hashedPassword.Iterations,
+            requiresPasswordChange: true);
+
+        await userRepository.AddAsync(userToAdd, cancellationToken);
+
+        var member = FamilyMember.Create(
+            familyId,
+            userToAdd.Id,
+            color: request.Color,
+            phoneNumber: request.PhoneNumber,
+            isAdmin: request.IsAdmin);
+        await familyMemberRepository.AddAsync(member, cancellationToken);
+        await familyMemberRepository.SaveChangesAsync(cancellationToken);
+
+        await credentialEmailSender.SendFamilyInviteAsync(
+            new FamilyInviteMessage(userToAdd.Email, userToAdd.FirstName, family.Name, temporaryPassword),
+            cancellationToken);
+
+        return ToMemberDto(member, userToAdd);
+    }
+
+    public async Task<FamilyMemberDto> UpdateMemberAsync(
+        Guid familyId,
+        Guid memberId,
+        UpdateFamilyMemberRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        await EnsureCurrentUserIsAdminAsync(familyId, cancellationToken);
+        ValidateNames(request.FirstName, request.LastName);
+        var normalizedEmail = User.NormalizeEmail(request.Email);
+
+        var member = await familyMemberRepository.GetByIdAsync(memberId, cancellationToken)
+            ?? throw new KeyNotFoundException($"Family member {memberId} not found.");
+        if (member.FamilyId != familyId)
+            throw new KeyNotFoundException($"Family member {memberId} not found in family {familyId}.");
+
+        var user = await userRepository.GetByIdAsync(member.UserId, cancellationToken)
+            ?? throw new KeyNotFoundException($"No user found for member {memberId}.");
+        if (!string.Equals(user.Email, normalizedEmail, StringComparison.Ordinal))
         {
-            var user = await userRepository.GetByIdAsync(m.UserId, cancellationToken);
+            var existingUser = await userRepository.GetByEmailAsync(normalizedEmail, cancellationToken);
+            if (existingUser is not null && existingUser.Id != user.Id)
+                throw new ArgumentException("A user with this email already exists.", nameof(request.Email));
+        }
+
+        user.UpdateProfile(request.FirstName, request.LastName, normalizedEmail);
+        member.UpdatePhoneNumber(request.PhoneNumber);
+        member.SetAdmin(request.IsAdmin);
+
+        await familyMemberRepository.SaveChangesAsync(cancellationToken);
+        return ToMemberDto(member, user);
+    }
+
+    private async Task EnsureCurrentUserIsAdminAsync(Guid familyId, CancellationToken cancellationToken)
+    {
+        var currentUserId = currentUserProvider.GetRequiredUserId();
+        var currentMembership = await familyMemberRepository.GetByFamilyAndUserAsync(familyId, currentUserId, cancellationToken)
+            ?? throw new UnauthorizedAccessException("You are not a member of this family.");
+
+        if (!currentMembership.IsAdmin)
+            throw new UnauthorizedAccessException("Only admins can manage family settings.");
+    }
+
+    private async Task<FamilyDto> BuildFamilyDtoAsync(Family family, CancellationToken cancellationToken)
+    {
+        var members = await familyMemberRepository.GetByFamilyIdAsync(family.Id, cancellationToken);
+        var memberDtos = new List<FamilyMemberDto>();
+        foreach (var member in members)
+        {
+            var user = await userRepository.GetByIdAsync(member.UserId, cancellationToken);
             if (user is not null)
-                memberDtos.Add(ToMemberDto(m, user));
+            {
+                memberDtos.Add(ToMemberDto(member, user));
+            }
         }
 
         return new FamilyDto(family.Id, family.Name, family.CreatedByUserId, family.CreatedAtUtc, memberDtos);
     }
 
-    public async Task<FamilyMemberDto> AddMemberAsync(Guid familyId, AddFamilyMemberRequest request, CancellationToken cancellationToken = default)
+    private static void ValidateNames(string firstName, string lastName)
     {
-        var currentUserId = currentUserProvider.GetRequiredUserId();
-
-        var family = await familyRepository.GetByIdAsync(familyId, cancellationToken)
-            ?? throw new KeyNotFoundException($"Family {familyId} not found.");
-
-        // Must be a member of the family to add others
-        var currentMembership = await familyMemberRepository.GetByFamilyAndUserAsync(familyId, currentUserId, cancellationToken)
-            ?? throw new UnauthorizedAccessException("You are not a member of this family.");
-
-        var normalizedEmail = User.NormalizeEmail(request.Email);
-        var userToAdd = await userRepository.GetByEmailAsync(normalizedEmail, cancellationToken)
-            ?? throw new KeyNotFoundException($"No user found with email '{request.Email}'.");
-
-        // Check if already a member
-        var existing = await familyMemberRepository.GetByFamilyAndUserAsync(familyId, userToAdd.Id, cancellationToken);
-        if (existing is not null)
-            throw new ArgumentException("This user is already a member of the family.");
-
-        var member = FamilyMember.Create(familyId, userToAdd.Id, request.Color);
-        await familyMemberRepository.AddAsync(member, cancellationToken);
-        await familyMemberRepository.SaveChangesAsync(cancellationToken);
-
-        return ToMemberDto(member, userToAdd);
+        if (string.IsNullOrWhiteSpace(firstName))
+            throw new ArgumentException("First name is required.", nameof(firstName));
+        if (string.IsNullOrWhiteSpace(lastName))
+            throw new ArgumentException("Last name is required.", nameof(lastName));
     }
 
     private static FamilyMemberDto ToMemberDto(FamilyMember member, User user)
     {
-        return new FamilyMemberDto(member.Id, user.Id, user.FirstName, user.LastName, user.Email, member.Color, member.JoinedAtUtc);
+        return new FamilyMemberDto(
+            member.Id,
+            user.Id,
+            user.FirstName,
+            user.LastName,
+            user.Email,
+            member.PhoneNumber,
+            member.IsAdmin,
+            member.Color,
+            member.JoinedAtUtc);
     }
 }

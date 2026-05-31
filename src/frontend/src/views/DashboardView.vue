@@ -10,11 +10,11 @@ const todoStore = useTodoStore()
 
 onMounted(async () => {
   await familyStore.loadFamilies()
-  const fam = familyStore.selectedFamily()
+  const fam = familyStore.selectedFamily
   if (fam) await todoStore.loadTodos(fam.id)
 })
 
-const family = computed(() => familyStore.selectedFamily())
+const family = computed(() => familyStore.selectedFamily)
 const pendingTodos = computed(() => todoStore.todos.filter(t => !t.isDone))
 const doneTodos = computed(() => todoStore.todos.filter(t => t.isDone))
 
@@ -85,7 +85,7 @@ const displayName = computed(() =>
     </div>
 
     <div v-if="!family" class="card">
-      <p class="muted">Noch keine Familie. Gehe zu <RouterLink to="/family">Familie</RouterLink>, um eine zu erstellen.</p>
+      <p class="muted">Noch keine Familie. Gehe zu <RouterLink to="/settings">Einstellungen</RouterLink>, um eine zu erstellen.</p>
     </div>
   </div>
 </template>

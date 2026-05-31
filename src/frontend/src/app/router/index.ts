@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { hasValidAccessToken } from '../auth/tokenStorage'
+import { getStoredAuthenticatedUser, hasValidAccessToken } from '../auth/tokenStorage'
 
 const routes = [
   { path: '/', redirect: '/auth' },
@@ -16,11 +16,12 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
-    path: '/family',
-    name: 'family',
-    component: () => import('../../views/FamilyView.vue'),
+    path: '/settings',
+    name: 'settings',
+    component: () => import('../../views/SettingsView.vue'),
     meta: { requiresAuth: true },
   },
+  { path: '/family', redirect: '/settings' },
   {
     path: '/todos',
     name: 'todos',
@@ -43,9 +44,12 @@ export const router = createRouter({
 router.beforeEach((to) => {
   const authenticated = hasValidAccessToken()
   const requiresAuth = to.meta.requiresAuth === true
+  const storedUser = getStoredAuthenticatedUser()
+  const passwordChangeRequired = storedUser?.requiresPasswordChange === true
 
   if (requiresAuth && !authenticated) return { name: 'auth' }
-  if (to.name === 'auth' && authenticated) return { name: 'dashboard' }
+  if (to.name === 'auth' && authenticated) return passwordChangeRequired ? { name: 'settings' } : { name: 'dashboard' }
+  if (passwordChangeRequired && to.name !== 'settings') return { name: 'settings' }
   return true
 })
 

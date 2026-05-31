@@ -6,5 +6,7 @@ public sealed record FamilyMemberDto(
     string FirstName,
     string LastName,
     string Email,
+    string? PhoneNumber,
+    bool IsAdmin,
     string Color,
     DateTimeOffset JoinedAtUtc);

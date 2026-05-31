@@ -50,6 +50,7 @@ export interface StoredAuthenticatedUser {
   firstName: string
   lastName: string
   email: string
+  requiresPasswordChange: boolean
 }
 
 export function getStoredAuthenticatedUser(): StoredAuthenticatedUser | null {
@@ -61,7 +62,8 @@ export function getStoredAuthenticatedUser(): StoredAuthenticatedUser | null {
       typeof parsed?.id === 'string' &&
       typeof parsed?.firstName === 'string' &&
       typeof parsed?.lastName === 'string' &&
-      typeof parsed?.email === 'string'
+      typeof parsed?.email === 'string' &&
+      typeof parsed?.requiresPasswordChange === 'boolean'
     ) {
       return parsed as StoredAuthenticatedUser
     }
