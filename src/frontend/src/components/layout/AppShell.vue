@@ -11,7 +11,6 @@ interface NavItem {
 
 const mainNav: NavItem[] = [
   { to: '/dashboard', label: 'Dashboard', icon: 'grid' },
-  { to: '/settings', label: 'Einstellungen', icon: 'users' },
   { to: '/todos', label: 'Aufgaben', icon: 'check' },
   { to: '/calendar', label: 'Kalender', icon: 'calendar' },
 ]
@@ -86,13 +85,6 @@ function logout() {
             <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
             <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
           </svg>
-          <!-- Users icon -->
-          <svg v-else-if="item.icon === 'users'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-            <circle cx="9" cy="7" r="4"/>
-            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-          </svg>
           <!-- Check icon -->
           <svg v-else-if="item.icon === 'check'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="9 11 12 14 22 4"/>
@@ -111,13 +103,18 @@ function logout() {
       <div class="sidebar-spacer" />
 
       <!-- User -->
-      <div class="sidebar-user" style="cursor:default">
+      <RouterLink
+        to="/settings"
+        class="sidebar-user"
+        active-class="sidebar-user--active"
+        @click="closeMobileMenu"
+      >
         <div class="sidebar-user-avatar">{{ userInitials }}</div>
         <div class="sidebar-user-info">
           <div class="sidebar-user-name">{{ displayName }}</div>
           <div class="sidebar-user-plan">Family Hub</div>
         </div>
-      </div>
+      </RouterLink>
       <button class="sidebar-promo-btn" type="button" style="margin-top: 0.5rem" @click="logout">Abmelden</button>
     </aside>
 
