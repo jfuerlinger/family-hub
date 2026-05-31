@@ -107,10 +107,16 @@ function memberName(userId: string | null): string {
             <tbody>
               <tr v-for="todo in filteredTodos" :key="todo.id" :style="{ opacity: todo.isDone ? 0.6 : 1 }">
                 <td>
-                  <button type="button" :title="todo.isDone ? 'Als offen markieren' : 'Als erledigt markieren'" @click="toggle(todo.id, todo.isDone)">
-                    <span v-if="todo.isDone" class="status-badge status-badge--success">✓ Erledigt</span>
-                    <span v-else class="status-badge status-badge--warning">○ Offen</span>
-                  </button>
+                  <label class="todo-status-control">
+                    <input
+                      type="checkbox"
+                      class="todo-checkbox"
+                      :checked="todo.isDone"
+                      :aria-label="todo.isDone ? `Aufgabe ${todo.title} als offen markieren` : `Aufgabe ${todo.title} als erledigt markieren`"
+                      @change="toggle(todo.id, todo.isDone)"
+                    />
+                    <span>{{ todo.isDone ? 'Erledigt' : 'Offen' }}</span>
+                  </label>
                 </td>
                 <td :style="{ textDecoration: todo.isDone ? 'line-through' : 'none' }">{{ todo.title }}</td>
                 <td>{{ memberName(todo.assignedToUserId) }}</td>

@@ -21,6 +21,12 @@ const doneTodos = computed(() => todoStore.todos.filter(t => t.isDone))
 const displayName = computed(() =>
   authStore.user ? `${authStore.user.firstName} ${authStore.user.lastName}`.trim() : ''
 )
+
+async function toggle(todoId: string, isDone: boolean): Promise<void> {
+  const fam = family.value
+  if (!fam) return
+  await todoStore.toggleDone(fam.id, todoId, isDone)
+}
 </script>
 
 <template>
@@ -78,7 +84,16 @@ const displayName = computed(() =>
       <h3>Offene Aufgaben</h3>
       <ul class="upcoming-list">
         <li v-for="todo in pendingTodos.slice(0, 5)" :key="todo.id">
-          <span>{{ todo.title }}</span>
+          <label class="todo-status-control">
+            <input
+              type="checkbox"
+              class="todo-checkbox"
+              :checked="todo.isDone"
+              :aria-label="`Aufgabe ${todo.title} als erledigt markieren`"
+              @change="toggle(todo.id, todo.isDone)"
+            />
+            <span>{{ todo.title }}</span>
+          </label>
           <span class="muted">{{ todo.dueDateUtc ? new Date(todo.dueDateUtc).toLocaleDateString('de-AT') : '' }}</span>
         </li>
       </ul>
