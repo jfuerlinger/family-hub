@@ -26,8 +26,8 @@ export const useCalendarStore = defineStore('calendar', () => {
     loading.value = true
     error.value = null
     try {
-      const event = await createEvent(request)
-      myEvents.value.push(event)
+      await createEvent(request)
+      myEvents.value = await getMyEvents()
     } catch {
       error.value = 'Ereignis konnte nicht erstellt werden.'
     } finally {

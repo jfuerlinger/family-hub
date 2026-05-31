@@ -7,6 +7,11 @@ namespace FamilyHub.Infrastructure.Persistence.Repositories;
 
 internal sealed class EfFamilyMemberRepository(FamilyHubDbContext dbContext) : IFamilyMemberRepository
 {
+    public Task<FamilyMember?> GetByIdAsync(Guid memberId, CancellationToken cancellationToken = default)
+        => dbContext.FamilyMembers
+            .Include(x => x.User)
+            .SingleOrDefaultAsync(x => x.Id == memberId, cancellationToken);
+
     public Task<FamilyMember?> GetByFamilyAndUserAsync(Guid familyId, Guid userId, CancellationToken cancellationToken = default)
         => dbContext.FamilyMembers
             .SingleOrDefaultAsync(x => x.FamilyId == familyId && x.UserId == userId, cancellationToken);

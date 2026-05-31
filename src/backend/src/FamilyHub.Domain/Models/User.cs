@@ -22,13 +22,16 @@ public sealed class User
 
     public DateTimeOffset CreatedAtUtc { get; private set; }
 
+    public bool RequiresPasswordChange { get; private set; }
+
     public static User Create(
         string firstName,
         string lastName,
         string email,
         string passwordHash,
         string passwordSalt,
-        int passwordIterations)
+        int passwordIterations,
+        bool requiresPasswordChange = false)
     {
         if (string.IsNullOrWhiteSpace(firstName))
             throw new ArgumentException("First name is required.", nameof(firstName));
@@ -57,7 +60,38 @@ public sealed class User
             PasswordSalt = passwordSalt.Trim(),
             PasswordIterations = passwordIterations,
             CreatedAtUtc = DateTimeOffset.UtcNow,
+            RequiresPasswordChange = requiresPasswordChange,
         };
+    }
+
+    public void UpdateProfile(string firstName, string lastName, string email)
+    {
+        if (string.IsNullOrWhiteSpace(firstName))
+            throw new ArgumentException("First name is required.", nameof(firstName));
+
+        if (string.IsNullOrWhiteSpace(lastName))
+            throw new ArgumentException("Last name is required.", nameof(lastName));
+
+        FirstName = firstName.Trim();
+        LastName = lastName.Trim();
+        Email = NormalizeEmail(email);
+    }
+
+    public void UpdatePassword(string passwordHash, string passwordSalt, int passwordIterations, bool requiresPasswordChange = false)
+    {
+        if (string.IsNullOrWhiteSpace(passwordHash))
+            throw new ArgumentException("Password hash is required.", nameof(passwordHash));
+
+        if (string.IsNullOrWhiteSpace(passwordSalt))
+            throw new ArgumentException("Password salt is required.", nameof(passwordSalt));
+
+        if (passwordIterations <= 0)
+            throw new ArgumentOutOfRangeException(nameof(passwordIterations), "Password iteration count must be greater than zero.");
+
+        PasswordHash = passwordHash.Trim();
+        PasswordSalt = passwordSalt.Trim();
+        PasswordIterations = passwordIterations;
+        RequiresPasswordChange = requiresPasswordChange;
     }
 
     public static string NormalizeEmail(string email)

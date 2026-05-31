@@ -43,6 +43,32 @@ public sealed class FamiliesController(IFamilyService familyService) : Controlle
         }
     }
 
+    [HttpPut("{id:guid}")]
+    [ProducesResponseType(typeof(FamilyDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<FamilyDto>> Update(Guid id, [FromBody] UpdateFamilyRequest request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var updated = await familyService.UpdateFamilyAsync(id, request, cancellationToken);
+            return Ok(updated);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new ProblemDetails { Detail = ex.Message });
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+        catch (ArgumentException ex)
+        {
+            return ValidationProblem(detail: ex.Message);
+        }
+    }
+
     [HttpPost("{id:guid}/members")]
     [ProducesResponseType(typeof(FamilyMemberDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -53,6 +79,32 @@ public sealed class FamiliesController(IFamilyService familyService) : Controlle
         {
             var member = await familyService.AddMemberAsync(id, request, cancellationToken);
             return CreatedAtAction(nameof(GetById), new { id }, member);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new ProblemDetails { Detail = ex.Message });
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+        catch (ArgumentException ex)
+        {
+            return ValidationProblem(detail: ex.Message);
+        }
+    }
+
+    [HttpPut("{id:guid}/members/{memberId:guid}")]
+    [ProducesResponseType(typeof(FamilyMemberDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<FamilyMemberDto>> UpdateMember(Guid id, Guid memberId, [FromBody] UpdateFamilyMemberRequest request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var member = await familyService.UpdateMemberAsync(id, memberId, request, cancellationToken);
+            return Ok(member);
         }
         catch (KeyNotFoundException ex)
         {

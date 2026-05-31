@@ -7,7 +7,8 @@ namespace FamilyHub.Application.Services;
 public sealed class AuthService(
     IUserRepository userRepository,
     IPasswordHasher passwordHasher,
-    ITokenService tokenService) : IAuthService
+    ITokenService tokenService,
+    ICurrentUserProvider currentUserProvider) : IAuthService
 {
     public async Task<AuthResponseDto> RegisterAsync(RegisterUserRequest request, CancellationToken cancellationToken = default)
     {
@@ -55,12 +56,40 @@ public sealed class AuthService(
         return ToAuthResponse(user, authToken);
     }
 
+    public async Task<AuthResponseDto> ChangePasswordAsync(ChangePasswordRequest request, CancellationToken cancellationToken = default)
+    {
+        ValidatePassword(request.CurrentPassword);
+        ValidatePassword(request.NewPassword);
+
+        var userId = currentUserProvider.GetRequiredUserId();
+        var user = await userRepository.GetByIdAsync(userId, cancellationToken)
+            ?? throw new UnauthorizedAccessException("Authenticated user does not exist.");
+
+        var validCurrentPassword = passwordHasher.Verify(
+            request.CurrentPassword,
+            new PasswordHashResult(user.PasswordHash, user.PasswordSalt, user.PasswordIterations));
+
+        if (!validCurrentPassword)
+            throw new UnauthorizedAccessException("Current password is invalid.");
+
+        var newPasswordHash = passwordHasher.Hash(request.NewPassword);
+        user.UpdatePassword(
+            newPasswordHash.HashBase64,
+            newPasswordHash.SaltBase64,
+            newPasswordHash.Iterations,
+            requiresPasswordChange: false);
+        await userRepository.SaveChangesAsync(cancellationToken);
+
+        var authToken = tokenService.CreateToken(user);
+        return ToAuthResponse(user, authToken);
+    }
+
     private static AuthResponseDto ToAuthResponse(User user, AuthTokenResult authToken)
     {
         return new AuthResponseDto(
             authToken.AccessToken,
             authToken.ExpiresAtUtc,
-            new AuthenticatedUserDto(user.Id, user.FirstName, user.LastName, user.Email));
+            new AuthenticatedUserDto(user.Id, user.FirstName, user.LastName, user.Email, user.RequiresPasswordChange));
     }
 
     private static void ValidateNames(string firstName, string lastName)

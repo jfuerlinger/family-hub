@@ -45,6 +45,7 @@ internal sealed class JwtTokenService : ITokenService
             new Claim(JwtRegisteredClaimNames.Email, user.Email),
             new Claim(ClaimTypes.GivenName, user.FirstName),
             new Claim(ClaimTypes.Surname, user.LastName),
+            new Claim("pwd_change_required", user.RequiresPasswordChange.ToString().ToLowerInvariant()),
         };
 
         var signingCredentials = new SigningCredentials(_signingKey, SecurityAlgorithms.HmacSha256);

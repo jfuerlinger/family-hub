@@ -13,6 +13,8 @@ internal sealed class FamilyMemberEntityConfiguration : IEntityTypeConfiguration
         builder.Property(x => x.FamilyId).IsRequired();
         builder.Property(x => x.UserId).IsRequired();
         builder.Property(x => x.Color).HasMaxLength(20).IsRequired();
+        builder.Property(x => x.PhoneNumber).HasMaxLength(50);
+        builder.Property(x => x.IsAdmin).IsRequired();
         builder.Property(x => x.JoinedAtUtc).IsRequired();
         builder.HasOne(x => x.User)
             .WithMany()

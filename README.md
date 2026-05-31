@@ -75,13 +75,19 @@ cd src
 docker compose -f docker-compose.deploy.yml up -d
 ```
 
-### Push Images to Docker Hub
+### Build & Push Images via GitHub Actions
 
-```bash
-DOCKERHUB_USERNAME=yourusername IMAGE_TAG=latest docker compose -f src/docker-compose.deploy.yml build
-docker push yourusername/familyhub-api:latest
-docker push yourusername/familyhub-frontend:latest
-```
+The repository includes a GitHub Action at `.github/workflows/docker-publish.yml`.
+It runs backend and frontend tests first and then builds and pushes these images to Docker Hub:
+
+- `docker.io/<DOCKERHUB_USERNAME>/familyhub-api`
+- `docker.io/<DOCKERHUB_USERNAME>/familyhub-frontend`
+
+The workflow runs automatically on pushes to `main`, on version tags like `v1.2.3`, and can also be started manually.
+Configure these repository secrets in GitHub before using it:
+
+- `DOCKERHUB_USERNAME`
+- `DOCKERHUB_TOKEN`
 
 ## Demo Account
 

@@ -50,6 +50,9 @@ public sealed class TodoServiceTests
     {
         public List<FamilyMember> Items { get; } = [];
 
+        public Task<FamilyMember?> GetByIdAsync(Guid memberId, CancellationToken cancellationToken = default)
+            => Task.FromResult(Items.SingleOrDefault(x => x.Id == memberId));
+
         public Task<FamilyMember?> GetByFamilyAndUserAsync(Guid familyId, Guid userId, CancellationToken cancellationToken = default)
             => Task.FromResult(Items.SingleOrDefault(x => x.FamilyId == familyId && x.UserId == userId));
 

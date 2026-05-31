@@ -32,4 +32,12 @@ public sealed class Family
             CreatedAtUtc = DateTimeOffset.UtcNow,
         };
     }
+
+    public void Rename(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new ArgumentException("Family name is required.", nameof(name));
+
+        Name = name.Trim();
+    }
 }

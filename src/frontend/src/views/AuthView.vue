@@ -19,7 +19,7 @@ async function submit() {
     await authStore.loginUser({ email: email.value, password: password.value })
   }
   if (authStore.isAuthenticated) {
-    await router.push({ name: 'dashboard' })
+    await router.push({ name: authStore.requiresPasswordChange ? 'settings' : 'dashboard' })
   }
 }
 </script>
