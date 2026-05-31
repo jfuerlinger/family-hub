@@ -2,7 +2,7 @@ import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { AxiosError } from 'axios'
 import type { AuthenticatedUser, LoginRequest, RegisterRequest } from '../types/auth'
-import { login, register } from '../api/authApi'
+import { changePassword, login, register } from '../api/authApi'
 import {
   clearAccessToken,
   clearAccessTokenExpiry,
@@ -33,6 +33,7 @@ export const useAuthStore = defineStore('auth', () => {
   const isAuthenticated = computed(
     () => !!accessToken.value && !!expiresAtUtc.value && expiresAtUtc.value.getTime() > Date.now(),
   )
+  const requiresPasswordChange = computed(() => !!user.value?.requiresPasswordChange)
 
   async function registerUser(request: RegisterRequest): Promise<void> {
     loading.value = true
@@ -55,6 +56,19 @@ export const useAuthStore = defineStore('auth', () => {
       setSession(response.accessToken, response.expiresAtUtc, response.user)
     } catch (error) {
       authError.value = toErrorMessage(error, 'Anmeldung fehlgeschlagen.')
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function changeUserPassword(currentPassword: string, newPassword: string): Promise<void> {
+    loading.value = true
+    authError.value = null
+    try {
+      const response = await changePassword({ currentPassword, newPassword })
+      setSession(response.accessToken, response.expiresAtUtc, response.user)
+    } catch (error) {
+      authError.value = toErrorMessage(error, 'Passwort konnte nicht geaendert werden.')
     } finally {
       loading.value = false
     }
@@ -85,7 +99,18 @@ export const useAuthStore = defineStore('auth', () => {
     setStoredAuthenticatedUser(authenticatedUser)
   }
 
-  return { accessToken, user, authError, loading, isAuthenticated, registerUser, loginUser, logout }
+  return {
+    accessToken,
+    user,
+    authError,
+    loading,
+    isAuthenticated,
+    requiresPasswordChange,
+    registerUser,
+    loginUser,
+    changeUserPassword,
+    logout,
+  }
 })
 
 function toErrorMessage(error: unknown, fallback: string): string {

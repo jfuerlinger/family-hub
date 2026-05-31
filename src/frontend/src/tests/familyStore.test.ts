@@ -17,6 +17,8 @@ const mockFamily: Family = {
       firstName: 'Max',
       lastName: 'Muster',
       email: 'max@example.com',
+      phoneNumber: null,
+      isAdmin: true,
       color: '#4f46e5',
       joinedAtUtc: '2024-01-01T00:00:00Z',
     },
@@ -37,7 +39,7 @@ describe('familyStore', () => {
 
     expect(store.families).toHaveLength(1)
     expect(store.selectedFamilyId).toBe('fam-1')
-    expect(store.selectedFamily()?.name).toBe('Muster Familie')
+    expect(store.selectedFamily?.name).toBe('Muster Familie')
   })
 
   it('adds new family to the list', async () => {
@@ -50,5 +52,47 @@ describe('familyStore', () => {
 
     expect(store.families).toHaveLength(1)
     expect(store.selectedFamilyId).toBe('fam-1')
+  })
+
+  it('renames family and updates local state', async () => {
+    const renamedFamily = { ...mockFamily, name: 'Neue Familie' }
+    vi.spyOn(familiesApi, 'getFamilies').mockResolvedValue([mockFamily])
+    vi.spyOn(familiesApi, 'updateFamily').mockResolvedValue(renamedFamily)
+
+    const store = useFamilyStore()
+    await store.loadFamilies()
+    await store.renameFamily('fam-1', 'Neue Familie')
+
+    expect(store.selectedFamily?.name).toBe('Neue Familie')
+  })
+
+  it('adds member and reloads families', async () => {
+    const updatedFamily = {
+      ...mockFamily,
+      members: [
+        ...mockFamily.members,
+        {
+          id: 'mem-2',
+          familyId: 'fam-1',
+          userId: 'user-2',
+          firstName: 'Lisa',
+          lastName: 'Muster',
+          email: 'lisa@example.com',
+          phoneNumber: '1234',
+          isAdmin: false,
+          color: '#4f46e5',
+          joinedAtUtc: '2024-01-02T00:00:00Z',
+        },
+      ],
+    }
+
+    vi.spyOn(familiesApi, 'getFamilies').mockResolvedValueOnce([mockFamily]).mockResolvedValueOnce([updatedFamily])
+    vi.spyOn(familiesApi, 'addFamilyMember').mockResolvedValue()
+
+    const store = useFamilyStore()
+    await store.loadFamilies()
+    await store.addMember('fam-1', { firstName: 'Lisa', lastName: 'Muster', email: 'lisa@example.com' })
+
+    expect(store.selectedFamily?.members).toHaveLength(2)
   })
 })

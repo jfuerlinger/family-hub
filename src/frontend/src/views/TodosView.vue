@@ -14,11 +14,11 @@ const filter = ref<'all' | 'open' | 'done'>('all')
 
 onMounted(async () => {
   await familyStore.loadFamilies()
-  const fam = familyStore.selectedFamily()
+  const fam = familyStore.selectedFamily
   if (fam) await todoStore.loadTodos(fam.id)
 })
 
-const family = computed(() => familyStore.selectedFamily())
+const family = computed(() => familyStore.selectedFamily)
 
 const filteredTodos = computed(() => {
   if (filter.value === 'open') return todoStore.todos.filter(t => !t.isDone)
@@ -61,7 +61,7 @@ function memberName(userId: string | null): string {
     </div>
 
     <div v-if="!family" class="card">
-      <p class="muted">Keine Familie ausgewählt. Gehe zu <RouterLink to="/family">Familie</RouterLink>.</p>
+      <p class="muted">Keine Familie ausgewählt. Gehe zu <RouterLink to="/settings">Einstellungen</RouterLink>.</p>
     </div>
 
     <template v-else>

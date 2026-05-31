@@ -16,7 +16,7 @@ describe('authStore', () => {
     vi.spyOn(authApi, 'login').mockResolvedValue({
       accessToken: 'jwt-token',
       expiresAtUtc: '2099-05-28T12:00:00Z',
-      user: { id: 'user-1', firstName: 'Max', lastName: 'Muster', email: 'max@example.com' },
+      user: { id: 'user-1', firstName: 'Max', lastName: 'Muster', email: 'max@example.com', requiresPasswordChange: false },
     })
 
     const store = useAuthStore()
@@ -30,7 +30,7 @@ describe('authStore', () => {
     vi.spyOn(authApi, 'register').mockResolvedValue({
       accessToken: 'jwt-token',
       expiresAtUtc: '2099-05-28T12:00:00Z',
-      user: { id: 'user-1', firstName: 'Max', lastName: 'Muster', email: 'max@example.com' },
+      user: { id: 'user-1', firstName: 'Max', lastName: 'Muster', email: 'max@example.com', requiresPasswordChange: false },
     })
 
     const store = useAuthStore()
@@ -75,6 +75,43 @@ describe('authStore', () => {
     await store.registerUser({ firstName: 'Max', lastName: 'Muster', email: 'max@example.com', password: 'Secure123!' })
 
     expect(store.authError).toBe('Die API ist aktuell nicht erreichbar. Bitte pruefe, ob Backend und Datenbank laufen.')
+  })
+
+  it('changes password and clears password-change requirement', async () => {
+    vi.spyOn(authApi, 'login').mockResolvedValue({
+      accessToken: 'temporary-token',
+      expiresAtUtc: '2099-05-28T12:00:00Z',
+      user: { id: 'user-1', firstName: 'Max', lastName: 'Muster', email: 'max@example.com', requiresPasswordChange: true },
+    })
+    vi.spyOn(authApi, 'changePassword').mockResolvedValue({
+      accessToken: 'final-token',
+      expiresAtUtc: '2099-05-28T13:00:00Z',
+      user: { id: 'user-1', firstName: 'Max', lastName: 'Muster', email: 'max@example.com', requiresPasswordChange: false },
+    })
+
+    const store = useAuthStore()
+    await store.loginUser({ email: 'max@example.com', password: 'Temp1234!' })
+    await store.changeUserPassword('Temp1234!', 'Secure1234!')
+
+    expect(store.requiresPasswordChange).toBe(false)
+    expect(window.sessionStorage.getItem('familyhub:auth:accessToken')).toBe('final-token')
+  })
+
+  it('keeps legacy stored users logged in and defaults password-change requirement to false', () => {
+    window.sessionStorage.setItem('familyhub:auth:accessToken', 'legacy-token')
+    window.sessionStorage.setItem('familyhub:auth:accessTokenExpiry', '2099-05-28T12:00:00Z')
+    window.localStorage.setItem('familyhub:auth:user', JSON.stringify({
+      id: 'legacy-user',
+      firstName: 'Legacy',
+      lastName: 'User',
+      email: 'legacy@example.com',
+    }))
+
+    const store = useAuthStore()
+
+    expect(store.isAuthenticated).toBe(true)
+    expect(store.user?.email).toBe('legacy@example.com')
+    expect(store.requiresPasswordChange).toBe(false)
   })
 })
 

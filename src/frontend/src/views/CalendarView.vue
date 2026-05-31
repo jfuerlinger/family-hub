@@ -60,7 +60,7 @@ onMounted(async () => {
   ])
 })
 
-const family = computed(() => familyStore.selectedFamily())
+const family = computed(() => familyStore.selectedFamily)
 
 const uniqueMembers = computed(() => {
   const map = new Map<string, { userId: string; name: string; color: string }>()
@@ -292,7 +292,7 @@ function goToToday(): void {
 
     <template v-else>
       <div v-if="!family" class="card">
-        <p class="muted">Keine Familie ausgewählt. Gehe zu <RouterLink to="/family">Familie</RouterLink>.</p>
+        <p class="muted">Keine Familie ausgewählt. Gehe zu <RouterLink to="/settings">Einstellungen</RouterLink>.</p>
       </div>
 
       <template v-else>

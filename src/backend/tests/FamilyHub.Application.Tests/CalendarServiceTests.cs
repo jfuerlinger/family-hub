@@ -112,6 +112,9 @@ public sealed class CalendarServiceTests
 
     private sealed class InMemoryFamilyMemberRepository : IFamilyMemberRepository
     {
+        public Task<FamilyMember?> GetByIdAsync(Guid memberId, CancellationToken cancellationToken = default)
+            => Task.FromResult<FamilyMember?>(null);
+
         public Task<FamilyMember?> GetByFamilyAndUserAsync(Guid familyId, Guid userId, CancellationToken cancellationToken = default)
             => Task.FromResult<FamilyMember?>(null);
 

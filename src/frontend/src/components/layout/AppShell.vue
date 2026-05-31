@@ -11,7 +11,7 @@ interface NavItem {
 
 const mainNav: NavItem[] = [
   { to: '/dashboard', label: 'Dashboard', icon: 'grid' },
-  { to: '/family', label: 'Familie', icon: 'users' },
+  { to: '/settings', label: 'Einstellungen', icon: 'users' },
   { to: '/todos', label: 'Aufgaben', icon: 'check' },
   { to: '/calendar', label: 'Kalender', icon: 'calendar' },
 ]

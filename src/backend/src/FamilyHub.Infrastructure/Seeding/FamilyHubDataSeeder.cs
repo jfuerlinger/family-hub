@@ -30,7 +30,7 @@ public static class FamilyHubDataSeeder
             await dbContext.Families.AddAsync(family, cancellationToken);
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            var member = FamilyMember.Create(family.Id, demoUser.Id, "#4f46e5");
+            var member = FamilyMember.Create(family.Id, demoUser.Id, "#4f46e5", isAdmin: true);
             await dbContext.FamilyMembers.AddAsync(member, cancellationToken);
 
             // Add some demo todos

@@ -3,6 +3,7 @@ export interface AuthenticatedUser {
   firstName: string
   lastName: string
   email: string
+  requiresPasswordChange: boolean
 }
 
 export interface AuthResponse {
@@ -21,4 +22,9 @@ export interface RegisterRequest {
 export interface LoginRequest {
   email: string
   password: string
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string
+  newPassword: string
 }
