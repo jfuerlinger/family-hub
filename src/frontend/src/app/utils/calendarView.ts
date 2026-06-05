@@ -28,6 +28,19 @@ export function startOfWeek(date: Date): Date {
   return addDays(dayStart, distanceToMonday)
 }
 
+export function createOneDayDays(anchorDate: Date): CalendarDayCell[] {
+  const date = startOfLocalDay(anchorDate)
+  return [{ date, key: toDateKey(date), isCurrentMonth: true }]
+}
+
+export function createThreeDayDays(anchorDate: Date): CalendarDayCell[] {
+  const start = startOfLocalDay(anchorDate)
+  return Array.from({ length: 3 }, (_, index) => {
+    const date = addDays(start, index)
+    return { date, key: toDateKey(date), isCurrentMonth: true }
+  })
+}
+
 export function createWeekDays(anchorDate: Date): CalendarDayCell[] {
   const firstDay = startOfWeek(anchorDate)
   return Array.from({ length: 7 }, (_, index) => {
