@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# TypeScript 6 erasableSyntaxOnly emit artifacts
+src/**/*.js
+tsconfig.tsbuildinfo
