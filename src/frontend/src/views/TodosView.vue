@@ -72,7 +72,7 @@ function memberName(userId: string | null): string {
           <div class="form" style="margin-bottom: 0.5rem">
             <input v-model.trim="newTitle" type="text" placeholder="Titel" required />
             <input v-model.trim="newDescription" type="text" placeholder="Beschreibung (optional)" />
-            <input v-model="newDueDate" type="date" />
+            <input v-model="newDueDate" type="date" @click="($event.target as HTMLInputElement).showPicker()" />
             <select v-model="newAssignedTo">
               <option value="">Kein Mitglied</option>
               <option v-for="m in family.members" :key="m.userId" :value="m.userId">
