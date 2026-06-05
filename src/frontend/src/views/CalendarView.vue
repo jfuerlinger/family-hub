@@ -383,8 +383,8 @@ function isToday(date: Date): boolean {
           <div class="form" style="margin-bottom: 0.5rem">
             <input v-model.trim="newTitle" type="text" placeholder="Titel" required />
             <input v-model.trim="newDescription" type="text" placeholder="Beschreibung (optional)" />
-            <input v-model="newStart" type="datetime-local" required />
-            <input v-model="newEnd" type="datetime-local" required />
+            <input v-model="newStart" type="datetime-local" required @click="($event.target as HTMLInputElement).showPicker()" />
+            <input v-model="newEnd" type="datetime-local" required @click="($event.target as HTMLInputElement).showPicker()" />
             <label style="display:flex;align-items:center;gap:0.4rem">
               <input v-model="newAllDay" type="checkbox" />
               Ganztägig
@@ -397,7 +397,7 @@ function isToday(date: Date): boolean {
             </select>
             <template v-if="isRecurring">
               <input v-model.number="newRecurrenceInterval" type="number" min="1" step="1" placeholder="Intervall" />
-              <input v-model="newRecurrenceUntil" type="datetime-local" placeholder="Serie bis" />
+              <input v-model="newRecurrenceUntil" type="datetime-local" placeholder="Serie bis" @click="($event.target as HTMLInputElement).showPicker()" />
               <input v-model="newRecurrenceCount" type="number" min="1" step="1" placeholder="Anzahl (optional)" />
             </template>
           </div>
