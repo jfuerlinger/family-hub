@@ -769,6 +769,201 @@ button.danger {
   padding: 1.5rem !important;
 }
 
+/* ─── Solutions / Mindmap ───────────────────────────────── */
+
+.solutions-layout {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr);
+  align-items: start;
+}
+
+.solutions-map-card {
+  padding: 0.875rem;
+}
+
+.solutions-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.solutions-toolbar .muted {
+  margin: 0;
+}
+
+.solutions-canvas {
+  position: relative;
+  height: 560px;
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  background:
+    linear-gradient(var(--color-border-light) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-border-light) 1px, transparent 1px),
+    var(--color-bg);
+  background-size: 28px 28px;
+  overflow: hidden;
+}
+
+.solutions-canvas,
+.mindmap-node {
+  touch-action: none;
+}
+
+.solutions-links {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.solutions-links line {
+  stroke: var(--color-text-faint);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.mindmap-node {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 180px;
+  min-height: 74px;
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: 0 6px 12px rgba(15, 23, 42, 0.08);
+  padding: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0.25rem;
+  text-align: left;
+  cursor: grab;
+}
+
+.mindmap-node:active {
+  cursor: grabbing;
+}
+
+.mindmap-node--selected {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-light), 0 8px 14px rgba(15, 23, 42, 0.16);
+}
+
+.mindmap-node__title {
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.mindmap-node small {
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+}
+
+.solutions-side-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.solutions-side-panel h3 {
+  margin-bottom: 0.25rem;
+}
+
+.solutions-inline-form,
+.solutions-task-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.solutions-inline-form input,
+.solutions-task-form input,
+.solutions-task-form select,
+.solutions-task-form textarea {
+  width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  padding: 0.45rem 0.55rem;
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.15s;
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.solutions-inline-form input:focus,
+.solutions-task-form input:focus,
+.solutions-task-form select:focus,
+.solutions-task-form textarea:focus {
+  border-color: var(--color-primary);
+}
+
+.solutions-task-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+
+.solutions-inline-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.solutions-task-grid {
+  display: grid;
+  gap: 0.625rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.solutions-textarea {
+  resize: vertical;
+}
+
+.solutions-checkbox-label {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500 !important;
+}
+
+.solutions-checkbox-label input {
+  width: auto !important;
+  margin: 0;
+}
+
+.solutions-linked-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.solutions-linked-list li {
+  border: 1px solid var(--color-border);
+  border-radius: 0.625rem;
+  padding: 0.5rem 0.6rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.solutions-linked-list li p {
+  margin-top: 0.125rem;
+}
+
 /* ─── Calendar views ────────────────────────────────────── */
 
 .calendar-toolbar {
@@ -1073,6 +1268,15 @@ button.danger {
   .calendar-day-grid,
   .calendar-month-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .solutions-layout,
+  .solutions-task-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .solutions-canvas {
+    height: 440px;
   }
 }
 

@@ -20,14 +20,16 @@ export const useTodoStore = defineStore('todos', () => {
     }
   }
 
-  async function addTodo(familyId: string, request: CreateTodoRequest): Promise<void> {
+  async function addTodo(familyId: string, request: CreateTodoRequest): Promise<TodoItem | null> {
     loading.value = true
     error.value = null
     try {
       const todo = await createTodo(familyId, request)
       todos.value.unshift(todo)
+      return todo
     } catch {
       error.value = 'Aufgabe konnte nicht erstellt werden.'
+      return null
     } finally {
       loading.value = false
     }
