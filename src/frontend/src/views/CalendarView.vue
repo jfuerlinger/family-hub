@@ -532,8 +532,8 @@ function isToday(date: Date): boolean {
         <div class="form calendar-composer-grid">
           <input v-model.trim="newTitle" type="text" placeholder="Titel" required />
           <input v-model.trim="newDescription" type="text" placeholder="Beschreibung (optional)" />
-          <input v-model="newStart" type="datetime-local" required />
-          <input v-model="newEnd" type="datetime-local" required @input="userEditedEnd = true" />
+          <input v-model="newStart" type="datetime-local" required @click="($event.target as HTMLInputElement).showPicker()" />
+          <input v-model="newEnd" type="datetime-local" required @input="userEditedEnd = true" @click="($event.target as HTMLInputElement).showPicker()" />
           <label class="calendar-toggle-label">
             <input v-model="newAllDay" type="checkbox" />
             Ganztägig
@@ -569,7 +569,12 @@ function isToday(date: Date): boolean {
               </div>
             </div>
             <div class="calendar-recurrence-input">
-              <input v-if="recurrenceEndMode === 'until'" v-model="newRecurrenceUntil" type="datetime-local" />
+              <input
+                v-if="recurrenceEndMode === 'until'"
+                v-model="newRecurrenceUntil"
+                type="datetime-local"
+                @click="($event.target as HTMLInputElement).showPicker()"
+              />
               <input
                 v-else
                 v-model="newRecurrenceCount"

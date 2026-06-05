@@ -2,6 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useTodoStore } from '../app/stores/todoStore'
 import { useFamilyStore } from '../app/stores/familyStore'
+import { filterTodos, type TodoDueDateFilter } from '../app/utils/todoFilters'
 
 const todoStore = useTodoStore()
 const familyStore = useFamilyStore()
@@ -10,7 +11,9 @@ const newTitle = ref('')
 const newDescription = ref('')
 const newDueDate = ref('')
 const newAssignedTo = ref('')
-const filter = ref<'all' | 'open' | 'done'>('all')
+const statusFilter = ref<'all' | 'open' | 'done'>('all')
+const assigneeFilter = ref<'all' | 'unassigned' | string>('all')
+const dueDateFilter = ref<TodoDueDateFilter>('all')
 
 onMounted(async () => {
   await familyStore.loadFamilies()
@@ -21,9 +24,11 @@ onMounted(async () => {
 const family = computed(() => familyStore.selectedFamily)
 
 const filteredTodos = computed(() => {
-  if (filter.value === 'open') return todoStore.todos.filter(t => !t.isDone)
-  if (filter.value === 'done') return todoStore.todos.filter(t => t.isDone)
-  return todoStore.todos
+  return filterTodos(todoStore.todos, {
+    status: statusFilter.value,
+    assignee: assigneeFilter.value,
+    dueDate: dueDateFilter.value,
+  })
 })
 
 async function addTodo() {
@@ -72,7 +77,7 @@ function memberName(userId: string | null): string {
           <div class="form" style="margin-bottom: 0.5rem">
             <input v-model.trim="newTitle" type="text" placeholder="Titel" required />
             <input v-model.trim="newDescription" type="text" placeholder="Beschreibung (optional)" />
-            <input v-model="newDueDate" type="date" />
+            <input v-model="newDueDate" type="date" @click="($event.target as HTMLInputElement).showPicker()" />
             <select v-model="newAssignedTo">
               <option value="">Kein Mitglied</option>
               <option v-for="m in family.members" :key="m.userId" :value="m.userId">
@@ -87,9 +92,26 @@ function memberName(userId: string | null): string {
 
       <!-- Filter -->
       <div class="filter-bar">
-        <button type="button" :class="['filter-select', { 'nav-link-active': filter === 'all' }]" @click="filter = 'all'">Alle</button>
-        <button type="button" :class="['filter-select', { 'nav-link-active': filter === 'open' }]" @click="filter = 'open'">Offen</button>
-        <button type="button" :class="['filter-select', { 'nav-link-active': filter === 'done' }]" @click="filter = 'done'">Erledigt</button>
+        <button type="button" :class="['filter-select', { 'nav-link-active': statusFilter === 'all' }]" @click="statusFilter = 'all'">Alle</button>
+        <button type="button" :class="['filter-select', { 'nav-link-active': statusFilter === 'open' }]" @click="statusFilter = 'open'">Offen</button>
+        <button type="button" :class="['filter-select', { 'nav-link-active': statusFilter === 'done' }]" @click="statusFilter = 'done'">Erledigt</button>
+
+        <select v-model="assigneeFilter" class="filter-select" aria-label="Nach Person filtern">
+          <option value="all">Alle Personen</option>
+          <option value="unassigned">Nicht zugewiesen</option>
+          <option v-for="m in family.members" :key="m.userId" :value="m.userId">
+            {{ m.firstName }} {{ m.lastName }}
+          </option>
+        </select>
+
+        <select v-model="dueDateFilter" class="filter-select" aria-label="Nach Fälligkeit filtern">
+          <option value="all">Alle Fälligkeiten</option>
+          <option value="today">Heute</option>
+          <option value="tomorrow">Morgen</option>
+          <option value="thisWeek">Diese Woche</option>
+          <option value="nextWeek">Nächste Woche</option>
+          <option value="thisMonth">Dieser Monat</option>
+        </select>
       </div>
 
       <!-- Todo-Liste -->
